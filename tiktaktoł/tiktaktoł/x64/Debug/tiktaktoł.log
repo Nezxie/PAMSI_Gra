@@ -1,3 +1,2 @@
-﻿  pch.cpp
-  tiktaktoł.cpp
-c:\users\heis\desktop\pamsi_gra-master\tiktaktoł\tiktaktoł\tiktaktoł.cpp(5): fatal error C1083: Nie można otworzyć pliku dołącz: 'bits/stdc++.h': No such file or directory
+﻿  tiktaktoł.cpp
+  tiktaktoł.vcxproj -> C:\Users\Heis\Desktop\PAMSI_Gra-master\tiktaktoł\x64\Debug\tiktaktoł.exe
