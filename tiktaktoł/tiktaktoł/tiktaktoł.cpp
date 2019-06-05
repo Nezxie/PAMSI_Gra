@@ -8,7 +8,7 @@
 using namespace std;
 #define PC 1 //stale przypisujace numery graczom
 #define GRACZ 2
-#define BOK 4 //dlugosc boku planszy
+#define BOK 5 //dlugosc boku planszy
 
 #define PC_RUCH 'O' //komputer stawia kolka
 #define GRACZ_RUCH 'X' //gracz krzyzyki
@@ -113,7 +113,7 @@ c = 0; //licznik ile w przekatnej jest takich samych znakow
 
 //minimax
 
-int MiniMax(char plansza[][BOK], int glebokosc, bool CzyMax)
+int MiniMax(char plansza[][BOK], int glebokosc, bool CzyMax, int alfa,int beta) 
 {
 	int Wynik = Mysl(plansza);
 	//jesli wygral pc
@@ -125,6 +125,8 @@ int MiniMax(char plansza[][BOK], int glebokosc, bool CzyMax)
 	//jesli remis
 	if (CzyPozostalyRuchy(plansza) == false)
 		return 0;
+	if (glebokosc == 4)
+		return(0);
 
 	//jesli szukamy max 
 	if (CzyMax)
@@ -138,9 +140,12 @@ int MiniMax(char plansza[][BOK], int glebokosc, bool CzyMax)
 				if (plansza[i][j] == ' ')
 				{
 					plansza[i][j] = PC_RUCH; //symuluje ruch PC
-					best = max(best, MiniMax(plansza, glebokosc + 1, !CzyMax)); //szukamy max wartosci dla zasymulowanego ruchu
+					best = max(best, MiniMax(plansza, glebokosc + 1, !CzyMax,alfa,beta)); //szukamy max wartosci dla zasymulowanego ruchu
 					//cofamy ten ruch co wykonalismy
+					alfa = max(alfa, best); //alfa najwiekszym bestem
 					plansza[i][j] = ' ';
+					if (beta <= alfa)
+						break;
 				}
 			}
 		}
@@ -157,9 +162,12 @@ int MiniMax(char plansza[][BOK], int glebokosc, bool CzyMax)
 				if (plansza[i][j] == ' ')
 				{
 					plansza[i][j] = GRACZ_RUCH; //symuluje ruch gracza
-					best = min(best, MiniMax(plansza, glebokosc + 1, !CzyMax)); //szukamy max wartosci dla zasymulowanego ruchu
+					best = min(best, MiniMax(plansza, glebokosc + 1, !CzyMax,alfa,beta)); //szukamy max wartosci dla zasymulowanego ruchu
 					//cofamy ten ruch co wykonalismy
+					beta = min(beta, best); //beta najmniejszym bestem
 					plansza[i][j] = ' ';
+					if (beta <= alfa)
+						break;
 				}
 			}
 		}
@@ -182,7 +190,7 @@ RuchPC NajlepszyRuch(char plansza[][BOK])
 			if (plansza[i][j] == ' ')
 			{
 				plansza[i][j] = PC_RUCH; //symuluje ruch PC
-				int Wartoscruchu = MiniMax(plansza, 0, false); //uruchamia sprawdzanie najlepszego ruchu
+				int Wartoscruchu = MiniMax(plansza, 0, false,-100,100); //uruchamia sprawdzanie najlepszego ruchu
 				plansza[i][j] = ' '; //czyscimy
 				if (Wartoscruchu > best)
 				{
@@ -215,11 +223,11 @@ void Instrukcja()
 		printf("\t\t\t Kolko i krzyzyk\n\n"); //\t to akapit \n nowa linia
 		printf("Aby wstawic symbol w dana komorke wpisz x i y\n\n");
 		printf("\t\t\t  (0,0) | (0,1)  | (0,2) | (0,3) \n");
-		printf("\t\t\t--------------------------------\n");
+		printf("\t\t\t---------------------------------\n");
 		printf("\t\t\t  (1,0) | (1,1)  | (1,2) | (1,3)\n");
 		printf("\t\t\t---------------------------------\n");
 		printf("\t\t\t  (2,0) | (2,1)  | (2,2) | (2,3)\n");
-		printf("\t\t\t----------------------------------\n");
+		printf("\t\t\t---------------------------------\n");
 		printf("\t\t\t  (3,0) | (3,1)  | (3,2) | (3,3) \n\n");
 	}
 	if (BOK == 5) {
@@ -232,7 +240,7 @@ void Instrukcja()
 		printf("\t\t\t  (2,0) | (2,1)  | (2,2) | (2,3) | (2,4)\n");
 		printf("\t\t\t-----------------------------------------\n");
 		printf("\t\t\t  (3,0) | (3,1)  | (3,2) | (3,3) | (3,4) \n");
-		printf("\t\t\t-----------------------------------------\n");
+		printf("\t\t\t----------------------------------------\n");
 		printf("\t\t\t  (4,0) | (4,1)  | (4,2) | (4,3) | (4,4)\n \n");
 	}
 }
@@ -256,13 +264,13 @@ void PokazPlansze(char plansza[][BOK]) //plansza jest tabilca charow - jak widac
 	{
 		printf("\n\n");
 
-		printf("\t\t\t  %c | %c  | %c  \n", plansza[0][0],
+		printf("\t\t\t  %c  | %c  | %c  \n", plansza[0][0],
 			plansza[0][1], plansza[0][2]); // w miejscach c kolejne wartosci z tablicy plansza
 		printf("\t\t\t--------------\n");
-		printf("\t\t\t  %c | %c  | %c  \n", plansza[1][0],
+		printf("\t\t\t  %c  | %c  | %c  \n", plansza[1][0],
 			plansza[1][1], plansza[1][2]);
 		printf("\t\t\t--------------\n");
-		printf("\t\t\t  %c | %c  | %c  \n\n", plansza[2][0],
+		printf("\t\t\t  %c  | %c  | %c  \n\n", plansza[2][0],
 			plansza[2][1], plansza[2][2]);
 	}
 
@@ -270,16 +278,36 @@ void PokazPlansze(char plansza[][BOK]) //plansza jest tabilca charow - jak widac
 	{
 		printf("\n\n");
 
-		printf("\t\t\t  %c | %c  | %c | %c \n", plansza[0][0],
+		printf("\t\t\t  %c  | %c  | %c  | %c \n", plansza[0][0],
 			plansza[0][1], plansza[0][2], plansza[0][3]); // w miejscach c kolejne wartosci z tablicy plansza
-		printf("\t\t\t--------------\n");
-		printf("\t\t\t  %c | %c  | %c | %c  \n", plansza[1][0],
+		printf("\t\t\t----------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c  \n", plansza[1][0],
 			plansza[1][1], plansza[1][2], plansza[1][3]);
-		printf("\t\t\t--------------\n");
-		printf("\t\t\t  %c | %c  | %c | %c  \n", plansza[2][0],
+		printf("\t\t\t----------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c  \n", plansza[2][0],
 			plansza[2][1], plansza[2][2], plansza[2][3]);
-		printf("\t\t\t  %c | %c  | %c | %c \n\n", plansza[3][0],
+		printf("\t\t\t----------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c \n\n", plansza[3][0],
 			plansza[3][1], plansza[3][2], plansza[3][3]);
+	}
+	if (BOK == 5)
+	{
+		printf("\n\n");
+
+		printf("\t\t\t  %c  | %c  | %c  | %c  | %c \n", plansza[0][0],
+			plansza[0][1], plansza[0][2], plansza[0][3], plansza[0][4]); // w miejscach c kolejne wartosci z tablicy plansza
+		printf("\t\t\t---------------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c  | %c \n", plansza[1][0],
+			plansza[1][1], plansza[1][2], plansza[1][3], plansza[1][4]);
+		printf("\t\t\t---------------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c  | %c \n", plansza[2][0],
+			plansza[2][1], plansza[2][2], plansza[2][3], plansza[2][4]);
+		printf("\t\t\t---------------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c  | %c \n", plansza[3][0],
+			plansza[3][1], plansza[3][2], plansza[3][3], plansza[3][4]);
+		printf("\t\t\t---------------------------\n");
+		printf("\t\t\t  %c  | %c  | %c  | %c  | %c \n\n", plansza[4][0],
+			plansza[4][1], plansza[4][2], plansza[4][3], plansza[4][4]);
 	}
 }
 //okreslenie zwyciezcy
@@ -397,7 +425,7 @@ void Graj(int KogoTura)
 			x = ruch.rzad;
 			y = ruch.kolumna;
 			plansza[x][y] = PC_RUCH;
-			printf("Komputer wstawil %c w pole %d\n", PC_RUCH, ruchy[licznik] + 1);
+			printf("Komputer wstawil %c w pole (%d,%d)\n", PC_RUCH, x,y);
 			PokazPlansze(plansza);
 			licznik++;
 			KogoTura = GRACZ;
@@ -409,16 +437,16 @@ void Graj(int KogoTura)
 			cin >> x;
 			cout << "Wpisz y" << endl;
 			cin >> y;
-			if (plansza[x][y] == ' ')
+			if (plansza[x][y] == ' ' && x<BOK && y<BOK)
 			{
 				plansza[x][y] = GRACZ_RUCH;
-				printf("Wstawiles %c w pole %d\n", GRACZ_RUCH, ruchy[licznik] + 1);
+				printf("Wstawiles %c w pole (%d,%d)\n", GRACZ_RUCH, x,y);
 				PokazPlansze(plansza);
 				licznik++;
 				KogoTura = PC;
 			}
 			else
-				cout << "Pole zajete, sprobuj jeszcze raz" << endl;
+				cout << "Bledne pole, sprobuj jeszcze raz" << endl;
 		}
 	}
 
@@ -439,7 +467,7 @@ void Graj(int KogoTura)
 int main()
 {
 
-	Graj(PC); //kto zaczyna
+	Graj(GRACZ); //kto zaczyna
 
 }
 
