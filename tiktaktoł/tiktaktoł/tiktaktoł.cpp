@@ -8,7 +8,7 @@
 using namespace std;
 #define PC 1 //stale przypisujace numery graczom
 #define GRACZ 2
-#define BOK 5 //dlugosc boku planszy
+#define BOK 4 //dlugosc boku planszy
 
 #define PC_RUCH 'O' //komputer stawia kolka
 #define GRACZ_RUCH 'X' //gracz krzyzyki
@@ -125,9 +125,11 @@ int MiniMax(char plansza[][BOK], int glebokosc, bool CzyMax, int alfa,int beta)
 	//jesli remis
 	if (CzyPozostalyRuchy(plansza) == false)
 		return 0;
-	if (glebokosc == 4)
-		return(0);
-
+	if (BOK != 3)
+	{
+		if (glebokosc == 4)
+			return(0);
+	}
 	//jesli szukamy max 
 	if (CzyMax)
 	{
